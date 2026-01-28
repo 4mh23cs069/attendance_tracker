@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Attendance Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.2);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background-color: #667eea;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background-color: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background-color: #48bb78;
+            color: white;
+            margin-right: 0.5rem;
+        }
+
+        .btn-success:hover {
+            background-color: #38a169;
+        }
+
+        .btn-danger {
+            background-color: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #e53e3e;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            width: auto;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        thead {
+            background-color: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+
+        .alert-error {
+            background-color: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+
+        .alert-info {
+            background-color: #bee3f8;
+            color: #2c5282;
+            border: 1px solid #90cdf4;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #999;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-button {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>📊 Attendance Dashboard</h1>
+            <p>Manage employees and track attendance</p>
+        </header>
+
+        <!-- Alerts -->
+        <div id="successAlert" class="alert alert-success"></div>
+        <div id="errorAlert" class="alert alert-error"></div>
+        <div id="infoAlert" class="alert alert-info"></div>
+
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Add User Card -->
+            <div class="card">
+                <h2>➕ Add New Employee</h2>
+                <form id="addUserForm">
+                    <div class="form-group">
+                        <label for="employeeName">Name</label>
+                        <input type="text" id="employeeName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="employeeEmail">Email</label>
+                        <input type="email" id="employeeEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="employeeId">Employee ID</label>
+                        <input type="text" id="employeeId" name="employee_id" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Employee</button>
+                </form>
+            </div>
+
+            <!-- Check In/Out Card -->
+            <div class="card">
+                <h2>⏱️ Attendance Action</h2>
+                <form id="checkInForm">
+                    <div class="form-group">
+                        <label for="checkInUser">Select Employee</label>
+                        <select id="checkInUser" required>
+                            <option value="">-- Select Employee --</option>
+                        </select>
+                    </div>
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-success btn-small" id="checkInBtn">Check In</button>
+                        <button type="button" class="btn btn-danger btn-small" id="checkOutBtn">Check Out</button>
+                    </div>
+                </form>
+
+                <div style="margin-top: 1.5rem;">
+                    <h3 style="color: #667eea; margin-bottom: 1rem;">Today's Status</h3>
+                    <div id="todayStatus" style="max-height: 200px; overflow-y: auto;">
+                        <p class="loading">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employees and Attendance Sections -->
+        <div class="card">
+            <div class="tabs">
+                <button class="tab-button active" onclick="switchTab('employees')">👥 Employees</button>
+                <button class="tab-button" onclick="switchTab('attendance')">📋 Attendance Records</button>
+            </div>
+
+            <!-- Employees Tab -->
+            <div id="employees" class="tab-content active">
+                <h2>Registered Employees</h2>
+                <div id="employeesList">
+                    <p class="loading">Loading employees...</p>
+                </div>
+            </div>
+
+            <!-- Attendance Tab -->
+            <div id="attendance" class="tab-content">
+                <h2>Attendance Records</h2>
+                <div class="form-group" style="max-width: 300px; margin-bottom: 1rem;">
+                    <label for="filterDate">Filter by Date</label>
+                    <input type="date" id="filterDate">
+                    <button class="btn btn-primary btn-small" onclick="filterAttendance()" style="width: auto; margin-top: 0.5rem;">Filter</button>
+                </div>
+                <div id="attendanceList">
+                    <p class="loading">Loading attendance records...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Helper Functions
+        function showAlert(type, message) {
+            const alertElement = document.getElementById(`${type}Alert`);
+            alertElement.textContent = message;
+            alertElement.style.display = 'block';
+            setTimeout(() => {
+                alertElement.style.display = 'none';
+            }, 5000);
+        }
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Load data
+            if (tabName === 'employees') {
+                loadEmployees();
+            } else {
+                loadAttendance();
+            }
+        }
+
+        // Load Users
+        async function loadEmployees() {
+            try {
+                const response = await fetch('/api/users');
+                const users = await response.json();
+
+                let html = '';
+                if (users.length === 0) {
+                    html = '<p style="text-align: center; padding: 2rem;">No employees added yet.</p>';
+                } else {
+                    html = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Employee ID</th>
+                                    <th>Created</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    users.forEach(user => {
+                        html += `
+                            <tr>
+                                <td>${user.name}</td>
+                                <td>${user.email}</td>
+                                <td>${user.employee_id}</td>
+                                <td>${user.created_at}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-small" onclick="viewUserSummary(${user.id}, '${user.name}')">View</button>
+                                        <button class="btn btn-danger btn-small" onclick="deleteUser(${user.id})">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                            </tbody>
+                        </table>
+                    `;
+                }
+
+                document.getElementById('employeesList').innerHTML = html;
+
+                // Update check-in dropdown
+                const selectElement = document.getElementById('checkInUser');
+                selectElement.innerHTML = '<option value="">-- Select Employee --</option>';
+                users.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = `${user.name} (${user.employee_id})`;
+                    selectElement.appendChild(option);
+                });
+            } catch (error) {
+                showAlert('error', 'Failed to load employees: ' + error.message);
+            }
+        }
+
+        // Load Attendance
+        async function loadAttendance() {
+            try {
+                const response = await fetch('/api/attendance');
+                const records = await response.json();
+
+                let html = '';
+                if (records.length === 0) {
+                    html = '<p style="text-align: center; padding: 2rem;">No attendance records found.</p>';
+                } else {
+                    html = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Employee ID</th>
+                                    <th>Date</th>
+                                    <th>Check In</th>
+                                    <th>Check Out</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    records.forEach(record => {
+                        html += `
+                            <tr>
+                                <td>#${record.user_id}</td>
+                                <td>${record.date}</td>
+                                <td>${record.check_in || 'N/A'}</td>
+                                <td>${record.check_out || 'Pending'}</td>
+                                <td><span style="background: #667eea; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.9rem;">${record.status}</span></td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                            </tbody>
+                        </table>
+                    `;
+                }
+
+                document.getElementById('attendanceList').innerHTML = html;
+            } catch (error) {
+                showAlert('error', 'Failed to load attendance: ' + error.message);
+            }
+        }
+
+        // Filter Attendance by Date
+        async function filterAttendance() {
+            const date = document.getElementById('filterDate').value;
+            if (!date) {
+                showAlert('info', 'Please select a date');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/attendance?date=${date}`);
+                const records = await response.json();
+
+                let html = '';
+                if (records.length === 0) {
+                    html = `<p style="text-align: center; padding: 2rem;">No attendance records for ${date}.</p>`;
+                } else {
+                    html = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Employee ID</th>
+                                    <th>Check In</th>
+                                    <th>Check Out</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    records.forEach(record => {
+                        html += `
+                            <tr>
+                                <td>#${record.user_id}</td>
+                                <td>${record.check_in || 'N/A'}</td>
+                                <td>${record.check_out || 'Pending'}</td>
+                                <td><span style="background: #667eea; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.9rem;">${record.status}</span></td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `</tbody></table>`;
+                }
+
+                document.getElementById('attendanceList').innerHTML = html;
+            } catch (error) {
+                showAlert('error', 'Failed to filter attendance: ' + error.message);
+            }
+        }
+
+        // Add User
+        document.getElementById('addUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                name: document.getElementById('employeeName').value,
+                email: document.getElementById('employeeEmail').value,
+                employee_id: document.getElementById('employeeId').value
+            };
+
+            try {
+                const response = await fetch('/api/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    showAlert('success', 'Employee added successfully!');
+                    document.getElementById('addUserForm').reset();
+                    loadEmployees();
+                } else {
+                    const error = await response.json();
+                    showAlert('error', error.error || 'Failed to add employee');
+                }
+            } catch (error) {
+                showAlert('error', 'Error: ' + error.message);
+            }
+        });
+
+        // Check In
+        document.getElementById('checkInBtn').addEventListener('click', async () => {
+            const userId = document.getElementById('checkInUser').value;
+            if (!userId) {
+                showAlert('info', 'Please select an employee');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/attendance/check-in', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ user_id: parseInt(userId) })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    showAlert('success', data.message);
+                    loadTodayStatus();
+                } else {
+                    const error = await response.json();
+                    showAlert('error', error.error || 'Check-in failed');
+                }
+            } catch (error) {
+                showAlert('error', 'Error: ' + error.message);
+            }
+        });
+
+        // Check Out
+        document.getElementById('checkOutBtn').addEventListener('click', async () => {
+            const userId = document.getElementById('checkInUser').value;
+            if (!userId) {
+                showAlert('info', 'Please select an employee');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/attendance');
+                const records = await response.json();
+                const today = new Date().toISOString().split('T')[0];
+                const todayRecord = records.find(r => r.user_id === parseInt(userId) && r.date === today);
+
+                if (!todayRecord) {
+                    showAlert('error', 'Employee has not checked in today');
+                    return;
+                }
+
+                const checkOutResponse = await fetch(`/api/attendance/${todayRecord.id}/check-out`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (checkOutResponse.ok) {
+                    const data = await checkOutResponse.json();
+                    showAlert('success', data.message);
+                    loadTodayStatus();
+                } else {
+                    const error = await checkOutResponse.json();
+                    showAlert('error', error.error || 'Check-out failed');
+                }
+            } catch (error) {
+                showAlert('error', 'Error: ' + error.message);
+            }
+        });
+
+        // Load Today's Status
+        async function loadTodayStatus() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const response = await fetch(`/api/attendance?date=${today}`);
+                const records = await response.json();
+
+                let html = '';
+                if (records.length === 0) {
+                    html = '<p style="text-align: center; padding: 1rem; color: #999;">No check-ins today</p>';
+                } else {
+                    html = '<table style="font-size: 0.9rem;"><thead><tr><th>Employee</th><th>Check In</th><th>Status</th></tr></thead><tbody>';
+                    records.forEach(record => {
+                        const checkInTime = record.check_in ? record.check_in.split(' ')[1] : 'N/A';
+                        const statusBadge = record.check_out ? '✓ Checked Out' : '⏱️ Checked In';
+                        html += `<tr><td>#${record.user_id}</td><td>${checkInTime}</td><td>${statusBadge}</td></tr>`;
+                    });
+                    html += '</tbody></table>';
+                }
+
+                document.getElementById('todayStatus').innerHTML = html;
+            } catch (error) {
+                document.getElementById('todayStatus').innerHTML = '<p style="color: red;">Failed to load status</p>';
+            }
+        }
+
+        // Delete User
+        async function deleteUser(userId) {
+            if (!confirm('Are you sure you want to delete this employee?')) return;
+
+            try {
+                const response = await fetch(`/api/users/${userId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showAlert('success', 'Employee deleted successfully!');
+                    loadEmployees();
+                } else {
+                    showAlert('error', 'Failed to delete employee');
+                }
+            } catch (error) {
+                showAlert('error', 'Error: ' + error.message);
+            }
+        }
+
+        // View User Summary
+        async function viewUserSummary(userId, userName) {
+            try {
+                const response = await fetch(`/api/attendance/user/${userId}/summary`);
+                const summary = await response.json();
+
+                alert(`📊 Attendance Summary for ${userName}\n\nTotal: ${summary.total_records}\nPresent: ${summary.present}\nAbsent: ${summary.absent}\nLate: ${summary.late}\nLeave: ${summary.leave}`);
+            } catch (error) {
+                showAlert('error', 'Failed to load summary: ' + error.message);
+            }
+        }
+
+        // Initial Load
+        loadEmployees();
+        loadTodayStatus();
+
+        // Refresh today's status every 30 seconds
+        setInterval(loadTodayStatus, 30000);
+    </script>
+</body>
+</html>
